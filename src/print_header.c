@@ -1,6 +1,7 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include <stdint.h>
+#include <inttypes.h>
 
 #include "gadget_types.h"
 #include "io.h"
@@ -9,8 +10,10 @@ void print_header(char *file_name)
 {
     struct gadget_header_t *header = read_gadget_header(file_name);
 
-    printf("%20s: %u/%llu\n", "Particles", header->npart[1],
-           ((uint64_t*)header->npart_total)[0]);
+    uint64_t total = ((((uint64_t)header->npart_total[0]) << 32) +
+                      header->npart_total[1]);
+
+    printf("%20s: %u/%"PRIu64"\n", "Particles", header->npart[1],total);
     printf("%20s: %g\n", "Mass", header->mass[1]);
     printf("%20s: %g\n", "Redshift", header->redshift);
     printf("%20s: %g\n", "Box Size", header->box_size);
