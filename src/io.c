@@ -120,7 +120,7 @@ struct gadget_particle_t *read_gadget_particles(char *file_name)
         exit(1);
     }
 
-    struct gadget_header_t *header = malloc(sizeof(header));
+    struct gadget_header_t *header = malloc(sizeof(*header));
     check_mem(header);
 
     int dummy;
@@ -131,7 +131,7 @@ struct gadget_particle_t *read_gadget_particles(char *file_name)
     uint32_t len = header->npart[1];
 
     struct gadget_particle_t *particles = malloc(sizeof(*particles) * len);
-    void *buf = malloc(sizeof(*buf) * 3 * len);
+    void *buf = malloc(sizeof(float) * 3 * len);
     check_mem(buf);
     check_mem(particles);
     
@@ -141,6 +141,8 @@ struct gadget_particle_t *read_gadget_particles(char *file_name)
 
     free(header);
     free(buf);
+
+    fclose(fp);
 
     return particles;
 }
