@@ -19,6 +19,7 @@
 
 #ifndef PEMUTILS_DEBUG_H_
 
+#include <stdlib.h>
 #include <assert.h>
 #include <stdio.h>
 

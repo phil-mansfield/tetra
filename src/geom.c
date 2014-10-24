@@ -1,16 +1,16 @@
 #include "geom.h"
 
-#define
+#include <stdint.h>
 
 uint64_t compress_coords(uint64_t x, uint64_t y, uint64_t z,
                          uint64_t dx, uint64_t dy, uint64_t dz,
                          uint32_t grid_width)
 {
-    uint64_t new_x = (x + grid_width) % grid_width;
-    uint64_t new_y = (x + grid_width) % grid_width;
-    uint64_t new_z = (x + grid_width) % grid_width;
+    uint64_t new_x = (x + dx + grid_width) % grid_width;
+    uint64_t new_y = (y + dy + grid_width) % grid_width;
+    uint64_t new_z = (z + dz + grid_width) % grid_width;
     uint64_t id = new_x + new_y *grid_width + new_z * grid_width * grid_width;
-    return id
+    return id;
 }
 
 void tetra_corners(uint64_t id,
@@ -21,7 +21,7 @@ void tetra_corners(uint64_t id,
     (void)dir_flag;
 
     int x = id % grid_width;
-    int y = id % (grid_wdith * grid_width) / grid_width;
+    int y = id % (grid_width * grid_width) / grid_width;
     int z = id / (grid_width * grid_width);
 
     out[0] = compress_coords(x, y, z, 0, 0, 1, grid_width);
