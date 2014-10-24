@@ -30,8 +30,7 @@ struct gadget_header_t {
 struct gadget_particle_t {
     float pos[3];
     float vel[3];
-    long id;
-    int flag;
+    uint64_t id;
 };
 
 #endif /* TETRA_SRC_GADGET_TYPES_H */
