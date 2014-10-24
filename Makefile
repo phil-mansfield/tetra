@@ -21,7 +21,7 @@ io.o: gadget_types.h
 	$(CC) $(CFLAGS) -c -o $@ $<
 
 bin/print_header: bin $(PRINT_HEADER_FILES) $(PRINT_HEADER_OBJECTS)
-	$(CC) $(CFLAGS) -I src -o $@ src/print_header.c $(PRINT_HEADER_OBJECTS)
+	$(CC) $(CFLAGS) -I src -o $@ src/print_header.c $(PRINT_HEADER_OBJECTS) -lm
 
 clean:
 	rm -r bin/
