@@ -99,12 +99,10 @@ void read_ids(FILE *fp,
     
     if (len * 4 == bytes) {
         uint32_t *buf32 = (uint32_t *) buf;
-        printf("32 bit IDs\n");
         fread(buf32, sizeof(*buf32), len, fp);
         for (uint32_t i = 0; i < len; i++) particles[i].id = buf32[i];
     } else if (len * 8 == bytes) {
         uint64_t *buf64 = (uint64_t *) buf;     
-        printf("64 bit IDs\n");
         fread(buf64, sizeof(*buf64), len, fp);
         for (uint32_t i = 0; i < len; i++) particles[i].id = buf64[i];
     } else {
