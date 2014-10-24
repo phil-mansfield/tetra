@@ -1,4 +1,5 @@
 #include <stdio.h>
+#include <inttypes.h>
 
 #include "debug.h"
 #include "gadget_types.h"
@@ -18,7 +19,7 @@ int id_cmp (const void * a, const void * b)
 
 int main(int argc, char **argv)
 {
-    check(argc != 2, "%s requires input file.", argv[1]);
+    check(argc == 2, "%s requires input file.", argv[1]);
 
     struct gadget_header_t *header = read_gadget_header(argv[1]);
     struct gadget_particle_t *ps = read_gadget_particles(argv[1]);
@@ -35,7 +36,10 @@ int main(int argc, char **argv)
         min_x = MIN(min_x, ps[i].pos[0]);
     }
 
-    printf("# Approximate cell width: %g Mpc", max_x - min_x);
+    printf("%"PRIu64" -> %"PRIu64" %"PRIu64" %"PRIu64"\n", ps[0].id,
+           corners[0], corners[1], corners[2]);
+
+    printf("# Approximate cell width: %g Mpc\n", max_x - min_x);
 
     struct gadget_particle_t *sorted_ps = malloc(sizeof(*sorted_ps) * len);
     check_mem(sorted_ps);
@@ -43,13 +47,16 @@ int main(int argc, char **argv)
 
     qsort(sorted_ps, len, sizeof(*ps), id_cmp);
 
+    printf("%"PRIu64" %"PRIu64" %"PRIu64"\n", sorted_ps[0].id,
+           sorted_ps[1].id, sorted_ps[2].id);
+
     int found = 0;
     struct gadget_particle_t *key = calloc(sizeof(*key), 1);
 
     for (uint32_t i = 0; i < len; i++) {
         for (uint32_t j = 0; j < 3; j++) {
             key->id = corners[3 * i + j];
-            if (bsearch(&key, ps, len, sizeof(*ps), id_cmp)) {
+            if (bsearch(&key, sorted_ps, len, sizeof(*ps), id_cmp)) {
                 found++;
             }
         }
