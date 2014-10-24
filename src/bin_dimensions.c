@@ -3,7 +3,7 @@
 #include "debug.h"
 #include "gadget_types.h"
 #include "io.h"
-#include "strings.h"
+#include "string.h"
 #include "geom.h"
 
 #define MIN(x, y) ((x) < (y)? (x): (y))
