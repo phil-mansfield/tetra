@@ -3,6 +3,7 @@
 #include "debug.h"
 #include "gadget_types.h"
 #include "io.h"
+#include "strings.h"
 #include "geom.h"
 
 #define MIN(x, y) ((x) < (y)? (x): (y))
@@ -13,6 +14,7 @@ int id_cmp (const void * a, const void * b)
     return (((struct gadget_particle_t*)a)->id - 
             ((struct gadget_particle_t*)b)->id);
 }
+
 
 int main(int argc, char **argv)
 {
@@ -35,8 +37,27 @@ int main(int argc, char **argv)
 
     printf("# Approximate cell width: %g Mpc", max_x - min_x);
 
-    qsort(ps, len, sizeof(*ps), id_cmp);
+    struct gadget_particle_t *sorted_ps = malloc(sizeof(*sorted_ps) * len);
+    check_mem(sorted_ps);
+    memcpy(sorted_ps, ps, len * sizeof(*sorted_ps));
 
+    qsort(sorted_ps, len, sizeof(*ps), id_cmp);
+
+    int found = 0;
+    struct gadget_particle_t *key = calloc(sizeof(*key), 1);
+
+    for (uint32_t i = 0; i < len; i++) {
+        for (uint32_t j = 0; j < 3; j++) {
+            key->id = corners[3 * i + j];
+            if (bsearch(&key, ps, len, sizeof(*ps), id_cmp)) {
+                found++;
+            }
+        }
+    }
+
+    printf("found: %d out of %d.\n", found, len * 3);
+
+    free(key);
     free(corners);
     free(header);
     free(ps);
