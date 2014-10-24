@@ -7,8 +7,8 @@ HEADERS=$(patsubst %.c,%.o,$(SOURCES))
 
 PRINT_HEADER_OBJECTS=$(patsubst %,src/%,io.o)
 PRINT_HEADER_FILES=$(patsubst %,src/%,gadget_types.h io.h print_header.c)
-PRINT_HEADER_OBJECTS=$(patsubst %,src/%,io.o geom.o)
-PRINT_HEADER_FILES=$(patsubst %,src/%,gadget_types.h geom.h io.h bin_dimensions.c)
+BIN_DIMENSIONS_OBJECTS=$(patsubst %,src/%,io.o geom.o)
+BIN_DIMENSIONS_FILES=$(patsubst %,src/%,gadget_types.h geom.h io.h bin_dimensions.c)
 
 all: bin/print_header bin/bin_dimensions
 
