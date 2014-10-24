@@ -29,8 +29,8 @@
 
 /* These macros *cannot* be used as subexpressions. */
 
-#define check(expr, fmt, ...) if (expr) {fprint_location(stderr); fprintf(stderr, fmt, ##__VA_ARGS__);  exit(1);}
-#define check_mem(ptr) check(ptr, "Allocator failed.")
+#define check(expr, fmt, ...) if (!expr) {fprint_location(stderr); fprintf(stderr, fmt, ##__VA_ARGS__);  exit(1);}
+#define check_mem(ptr) check(ptr, "Allocator failed.\n")
 
 /* Macros that turn on and off during debug mode. */
 
