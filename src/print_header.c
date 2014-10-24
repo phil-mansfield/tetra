@@ -17,9 +17,6 @@ void print_header(char *file_name)
     printf("%20s: %g\n", "Mass", header->mass[1]);
     printf("%20s: %g\n", "Redshift", header->redshift);
     printf("%20s: %g\n", "Box Size", header->box_size);
-    printf("%20s: %g\n", "Omega M", header->omega_0);
-    printf("%20s: %g\n", "Omega L", header->omega_lambda);
-    printf("%20s: %g\n", "Hubble", header->hubble_param);
     printf("%20s: %d\n", "Snapshot Files", header->num_files);
 
     free(header);
