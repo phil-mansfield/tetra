@@ -31,6 +31,7 @@ void print_header(char *file_name)
     for (int i = 0; i < 20; i++) print_particle(ps + i);
 
     free(header);
+    free(ps);
 }
 
 int main(int argc, char **argv)
