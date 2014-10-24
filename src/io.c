@@ -17,10 +17,15 @@ struct gadget_header_t *read_gadget_header(char *file_name)
         fprintf(stderr, "Cannot open %s\n", file_name);
         exit(1);
     }
+
+    int dummy;
+    fread(&dummy, sizeof(dummy), 1, fp);
     
     if (!fread(header, sizeof(*header), 1, fp)) {
         fprintf(stderr, "Problem reading header of %s.\n", file_name);
     }
+
+    fclose(fp);
 
     return header;
 }
