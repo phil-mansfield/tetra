@@ -87,7 +87,7 @@ int bin_idx(float val, float min_x, float width) {
 }
 
 float bin_val(int idx, float min_x, float width) {
-    return idx + 0.5 * width + min_x;
+    return (idx + 0.5) * width + min_x;
 }
 
 void float_bin_data(int bins, float *xs, int len,
@@ -149,11 +149,12 @@ int main(int argc, char **argv)
     /* Print Output */
     /****************/
 
+    printf("%25s: %g\n", "Redshift", header->redshift);
     printf("#%25s: %d / %d (%.2g percent)\n", "Neighobors in box",
            dist_len, len * 3, 100 * ((float) dist_len) / (3.0 * len));
     printf("#%25s: %g\n", "Maximum distance", max_dist);
     printf("#%25s: %g\n", "Minimum distance", min_dist);
-    printf("# %15s %15s\n.", "log10(dist)", "count");
+    printf("# %15s %15s\n", "log10(dist)", "count");
     for (int i = 0; i < bins; i++){
         printf("  %15g %15d\n", centers[i], counts[i]);
     }
