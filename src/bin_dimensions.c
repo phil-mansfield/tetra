@@ -1,6 +1,7 @@
 #include <stdio.h>
 #include <inttypes.h>
 #include <math.h>
+#include <float.h>
 
 #include "debug.h"
 #include "gadget_types.h"
@@ -17,24 +18,19 @@ int id_cmp (const void * a, const void * b)
             ((struct gadget_particle_t*)b)->id);
 }
 
-int bin_idx(float x, float width, float min_x)
+void float_min_max(float *xs, int len,
+                   float *min, float *max)
 {
-    return (int) ((x - min_x) / width);
-}
+    float min_x = FLT_MAX;
+    float max_x = FLT_MIN;
 
-void bin_data(float *xs, int len, int bins,
-              float min_x, float max_x,
-              float *centers, int *counts)
-{
-    float width = (max_x - min_x) / bins;
     for (int i = 0; i < len; i++) {
-        int idx = bin_idx(xs[i], width, min_x);
-        counts[MIN(idx, bins - 1)]++;
+        min_x = MIN(min_x, xs[i]);
+        max_x = MAX(max_x, xs[i]);
     }
 
-    for (int i = 0; i < bins; i++) {
-        centers[i] = 0.5 + width * i;
-    }
+    *min = min_x;
+    *max = max_x;
 }
 
 float dist(float *xs1, float *xs2)
@@ -47,6 +43,45 @@ float dist(float *xs1, float *xs2)
     return sqrt(sum);
 }
 
+float *neighbor_distances(struct gadget_particle_t *ps,
+                          struct gadget_particle_t *sorted_ps,
+                          int32_t len, int *dist_len)
+{
+    uint64_t *corners = malloc(sizeof(*corners) * len * 3);
+
+    for (int32_t i = 0; i < len; i++) {
+        tetra_corners(ps[i].id, 1024, 0, corners + 3 * i);
+    }
+    
+    struct gadget_particle_t *key = calloc(sizeof(*key), 1);
+    struct gadget_particle_t *res;
+
+    float *dists = malloc(sizeof(*dists) * 3 * len);
+    int found = 0;
+
+    for (int32_t i = 0; i < len; i++) {
+        for (int32_t j = 0; j < 3; j++) {
+            key->id = corners[j + i * 3];
+            if ((res = bsearch(key, sorted_ps, len,
+                               sizeof(*sorted_ps), id_cmp))) {
+
+                key->id = corners[3 * i + j];         
+                float d = dist(ps[i].pos, res->pos);
+
+                dists[found] = d;
+                found++;
+            }
+        }
+    }
+
+    *dist_len = found;
+
+    free(key);
+    free(corners);
+
+    return dists;
+}
+
 int main(int argc, char **argv)
 {
     check(argc == 2, "%s requires input file.", argv[1]);
@@ -55,65 +90,23 @@ int main(int argc, char **argv)
     struct gadget_particle_t *ps = read_gadget_particles(argv[1]);
 
     uint32_t len = header->npart[1];
-    uint64_t *corners = malloc(sizeof(*corners) * len * 3);
-
-    float min_x = header->box_size;
-    float max_x = 0;
-
-    for (uint32_t i = 0; i < len; i++) {
-        tetra_corners(ps[i].id, 1024, 0, corners + 3 * i);
-        max_x = MAX(max_x, ps[i].pos[0]);
-        min_x = MIN(min_x, ps[i].pos[0]);
-    }
-
-    printf("# Approximate cell width: %g Mpc\n", max_x - min_x);
 
     struct gadget_particle_t *sorted_ps = malloc(sizeof(*sorted_ps) * len);
     check_mem(sorted_ps);
     memcpy(sorted_ps, ps, len * sizeof(*sorted_ps));
-
     qsort(sorted_ps, len, sizeof(*ps), id_cmp);
 
-    int found = 0;
-    struct gadget_particle_t *key = calloc(sizeof(*key), 1);
-    struct gadget_particle_t *res;
+    int dist_len = 0;
+    float *dists = neighbor_distances(ps, sorted_ps, len, &dist_len);
 
-    float *dists = malloc(sizeof(*dists) * 3 * len);
+    printf("#%25s %d / %d (%.4g percent)\n", "Neighobors in box",
+           dist_len, len * 3, ((float) dist_len) / (3.0 * len));
 
-    for (uint32_t i = 0; i < len; i++) {
-        for (uint32_t j = 0; j < 3; j++) {
-            key->id = corners[3 * i + j];         
-            if ((res = bsearch(key,sorted_ps,len,sizeof(*sorted_ps),id_cmp))) {
-                float d = dist(ps[i].pos, res->pos);
-                max_x = MAX(max_x, d);
-                min_x = MIN(min_x, d);
+    (void)dists;
 
-                dists[found] = log10(d);
-
-                found++;
-            }
-        }
-    }
-
-    printf("# Neighbor Fraciton in Box: %g\n", ((float)found) / len * 3);
-    printf("# Max distance: %g\n.", max_x);
-    printf("# Min distance: %g\n.", min_x);
-    printf("#%15s %15s\n", "log10(d)", "n");
-
-    int bins = 400;
-    float *centers = calloc(bins, sizeof(*centers));
-    int *counts = calloc(bins, sizeof(*counts));
-
-    bin_data(dists, len, bins, min_x, max_x, centers, counts);
-
-    for (int i = 0; i < bins; i++) {
-        printf("  %15g %15d\n", centers[i], counts[i]);
-    }
-
-    free(key);
-    free(corners);
     free(header);
     free(ps);
+    free(sorted_ps);
 
     return 0;
 }
