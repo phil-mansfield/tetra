@@ -95,7 +95,7 @@ void float_bin_data(int bins, float *xs, int len,
 {
     float min_x, max_x;
     float_min_max(xs, len, &min_x, &max_x);
-    float width = max_x - min_x;
+    float width = (max_x - min_x) / bins;
 
     for (int i = 0; i < len; i++) {
         int idx = bin_idx(xs[i], min_x, width);
