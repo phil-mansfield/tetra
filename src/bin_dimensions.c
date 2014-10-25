@@ -149,7 +149,7 @@ int main(int argc, char **argv)
     /* Print Output */
     /****************/
 
-    printf("%25s: %g\n", "Redshift", header->redshift);
+    printf("#%25s: %g\n", "Redshift", header->redshift);
     printf("#%25s: %d / %d (%.2g percent)\n", "Neighobors in box",
            dist_len, len * 3, 100 * ((float) dist_len) / (3.0 * len));
     printf("#%25s: %g\n", "Maximum distance", max_dist);
