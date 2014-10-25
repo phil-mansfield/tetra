@@ -96,13 +96,16 @@ int main(int argc, char **argv)
     memcpy(sorted_ps, ps, len * sizeof(*sorted_ps));
     qsort(sorted_ps, len, sizeof(*ps), id_cmp);
 
-    int dist_len = 0;
+    int dist_len;
     float *dists = neighbor_distances(ps, sorted_ps, len, &dist_len);
 
-    printf("#%25s %d / %d (%.4g percent)\n", "Neighobors in box",
-           dist_len, len * 3, ((float) dist_len) / (3.0 * len));
+    float max_dist, min_dist;
+    float_min_max(dists, dist_len, &min_dist, &max_dist);
 
-    (void)dists;
+    printf("#%25s: %d / %d (%.2g percent)\n", "Neighobors in box",
+           dist_len, len * 3, 100 * ((float) dist_len) / (3.0 * len));
+    printf("#%25s: %g\n", "Maximum distance", max_dist);
+    printf("#%25s: %g\n", "Minimum distance", min_dist);
 
     free(header);
     free(ps);
